@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>TinyGo Squash</title>
+        <script src="wasm_exec.js"></script>
+        <script>
+            function initCanvas() {
+                const canvas = document.getElementById('gameCanvas');
+                const errorDiv = document.getElementById('errorMessage');
+                const minWidth = 480;
+                const minHeight = 360;
+                const aspectRatio = 4 / 3; // 800x600 proportion
+
+                const availableWidth = Math.min(window.innerWidth * 0.95, 800);
+                const availableHeight = Math.min(window.innerHeight * 0.95, 600);
+
+                if (availableWidth < minWidth || availableHeight < minHeight) {
+                    canvas.style.display = 'none';
+                    errorDiv.style.display = 'flex';
+                    return;
+                }
+
+                let canvasWidth, canvasHeight;
+                if (availableWidth / availableHeight > aspectRatio) {
+                    canvasHeight = availableHeight;
+                    canvasWidth = canvasHeight * aspectRatio;
+                } else {
+                    canvasWidth = availableWidth;
+                    canvasHeight = canvasWidth / aspectRatio;
+                }
+                
+                canvas.width = Math.floor(canvasWidth);
+                canvas.height = Math.floor(canvasHeight);
+                canvas.style.display = 'block';
+                errorDiv.style.display = 'none';
+            }
+
+            window.addEventListener('load', () => {
+                initCanvas();
+
+                const canvas = document.getElementById('gameCanvas');
+                if (canvas.style.display !== 'none') {
+                    const go = new Go();
+                    WebAssembly.instantiateStreaming(fetch("squash.wasm"), go.importObject).then((result) => {
+                        go.run(result.instance);
+                    });
+                }
+            });
+
+            window.addEventListener('resize', initCanvas);
+        </script>
+        <style>
+            body { 
+                background: #1a1a1a;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                color: white;
+                font-family: sans-serif;
+            }
+            canvas { 
+                border: 2px solid #fff;
+                background: #000;
+            }
+            #errorMessage {
+                display: none;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                padding: 20px;
+                font-size: 24px;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="gameCanvas"></canvas>
+        <div id="errorMessage">
+            <p>=( Unsupported resolution.</p>
+            <p style="font-size: 16px; margin-top: 10px;">Minimum: 480x360</p>
+        </div>
+    </body>
+</html>

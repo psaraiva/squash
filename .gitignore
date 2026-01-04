@@ -1,0 +1,5 @@
+.vscode
+coverage*.out
+bin/web/*.html
+bin/web/*.js
+bin/web/*.wasm
