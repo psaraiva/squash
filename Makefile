@@ -20,21 +20,21 @@ DOCKER_IMAGE=squash-game
 DOCKER_TAG=latest
 DOCKER_PORT=8080
 
-.PHONY: web-deploy-local web-build web-copy-files web-serve-start web-clean go-mock go-test go-test-wasm go-test-all docker-build docker-run docker-stop docker-deploy docker-clean
+.PHONY: web-deploy-local web-build web-copy-files web-serve-start web-clean go-mock go-test go-test-wasm go-test-all docker-build docker-run docker-stop docker-deploy docker-clean go-coverage
 
 web-deploy-local: web-copy-files web-build web-serve-start
 
 web-copy-files:
-	@echo "Copiando wasm_exec.js..."
+	@echo "Copying wasm_exec.js..."
 	cp $(TOOL_WASM_EXEC) $(DIR_WEB_BIN)
 	cp $(DIR_WEB_CMD)/$(FILE_WEB_INDEX) $(DIR_WEB_BIN)
 
 web-build: web-copy-files
-	@echo "Compilando Squash para Wasm..."
+	@echo "Compiling Squash to Wasm..."
 	tinygo build -o $(DIR_WEB_BIN)/$(FILE_WEB_BIN) -target wasm $(DIR_WEB_CMD)
 
 web-serve-start:
-	@echo "Iniciando servidor Go..."
+	@echo "Starting Go server..."
 	go run server.go
 
 web-clean:
@@ -43,37 +43,41 @@ web-clean:
 	rm -f $(DIR_WEB_BIN)/$(FILE_WEB_INDEX)
 
 go-mock:
-	@echo "Gerando mocks para as interfaces de renderização..."
+	@echo "Generating mocks for rendering interfaces..."
 	rm -rf internal/ports/mocks/
 	$(TOOL_MOCKERY) --name=Renderer --dir=./internal/ports --output=./internal/ports/mocks --case=underscore
 
 go-test:
-	@echo "Executando testes unitários com cobertura..."
+	@echo "Running unit tests with coverage..."
 	$(TOOL_GOTEST) -v -cover ./internal/app/... ./pkg/adapters/input/web/...
 
 go-test-wasm:
-	@echo "Executando testes WASM..."
+	@echo "Running WASM tests..."
 	tinygo test -target wasm ./pkg/adapters/output/web/...
 
 go-test-all: go-test go-test-wasm
 
-# Docker commands
+go-coverage:
+	@echo "Generating coverage report..."
+	@go test -v -coverprofile=coverage.out -covermode=atomic ./internal/app/... ./pkg/adapters/input/web/...
+	@go tool cover -html=coverage.out -o coverage.html
+
 docker-build:
-	@echo "Construindo imagem Docker..."
+	@echo "Building Docker image..."
 	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
 
 docker-run:
-	@echo "Executando container Docker..."
+	@echo "Running Docker container..."
 	docker run -d --name squash-container -p $(DOCKER_PORT):$(DOCKER_PORT) $(DOCKER_IMAGE):$(DOCKER_TAG)
-	@echo "Acesse: http://localhost:$(DOCKER_PORT)"
+	@echo "Access: http://localhost:$(DOCKER_PORT)"
 
 docker-stop:
-	@echo "Parando container Docker..."
+	@echo "Stopping Docker container..."
 	docker stop squash-container || true
 	docker rm squash-container || true
 
 docker-deploy: docker-stop docker-build docker-run
 
 docker-clean: docker-stop
-	@echo "Removendo imagem Docker..."
+	@echo "Removing Docker image..."
 	docker rmi $(DOCKER_IMAGE):$(DOCKER_TAG) || true

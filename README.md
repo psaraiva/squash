@@ -4,7 +4,8 @@
 [![License](https://img.shields.io/badge/license-MIT-%233DA639.svg)](https://opensource.org/licenses/MIT)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/psaraiva/squash)](https://goreportcard.com/report/github.com/psaraiva/squash)
-![Codecov](https://img.shields.io/codecov/c/github/psaraiva/squash)
+[![codecov](https://codecov.io/gh/psaraiva/squash/branch/main/graph/badge.svg)](https://codecov.io/gh/psaraiva/squash)
+
 [![Language: Português](https://img.shields.io/badge/Language-Portugu%C3%AAs-green?style=flat-square)](./README_pt_br.md)
 
 A classic Squash game developed in **Go** (TinyGO) and compiled to **WebAssembly (WASM)**, running directly in the browser without any plugins.

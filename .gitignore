@@ -1,5 +1,6 @@
 .vscode
 coverage*.out
+coverage*.html
 bin/web/*.html
 bin/web/*.js
 bin/web/*.wasm
