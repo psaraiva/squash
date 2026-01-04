@@ -5,6 +5,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/psaraiva/squash)](https://goreportcard.com/report/github.com/psaraiva/squash)
 [![codecov](https://codecov.io/gh/psaraiva/squash/branch/main/graph/badge.svg)](https://codecov.io/gh/psaraiva/squash)
+
 [![Language: English](https://img.shields.io/badge/Idioma-English-blue?style=flat-square)](./README.md)
 
 Um jogo clássico de Squash desenvolvido em **Go** (TinyGO) e compilado para **WebAssembly (WASM)**, rodando diretamente no navegador sem necessidade de plugins.
