@@ -38,9 +38,6 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            squash-wasm.zip
-            dist/squash.wasm
-            dist/wasm_exec.js
+          files: squash-wasm.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
