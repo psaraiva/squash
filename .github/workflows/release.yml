@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install TinyGo
+        run: |
+          wget https://github.com/tinygo-org/tinygo/releases/download/v0.33.0/tinygo_0.33.0_amd64.deb
+          sudo dpkg -i tinygo_0.33.0_amd64.deb
+
+      - name: Build WASM and Prepare Assets
+        run: |
+          mkdir -p dist
+          cp ./cmd/web/index.html dist/
+          cp $(tinygo env TINYGOROOT)/targets/wasm_exec.js dist/
+          tinygo build -o dist/squash.wasm -target wasm ./cmd/web/main.go
+          cd dist && zip ../squash-wasm.zip squash.wasm wasm_exec.js index.html
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            squash-wasm.zip
+            dist/squash.wasm
+            dist/wasm_exec.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
